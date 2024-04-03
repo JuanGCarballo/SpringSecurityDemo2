@@ -11,7 +11,7 @@
     <div th:if="${param.logout}">
       Has cerrado sesión satisfactoriamente.
     </div>
-    <form th:action="@{/login}" method="post">
+    <form th:action="@{/api/login}" method="post">
       <div>
         <label for="username">Nombre de usuario:</label>
         <input type="text" id="username" name="username" />
