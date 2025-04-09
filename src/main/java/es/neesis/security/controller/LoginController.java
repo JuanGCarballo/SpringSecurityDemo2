@@ -2,6 +2,7 @@ package es.neesis.security.controller;
 
 import es.neesis.security.auth.JwtUtil;
 import es.neesis.security.model.AuthRequestDTO;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -27,12 +28,19 @@ public class LoginController {
         Authentication auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
         if(auth.isAuthenticated()){
             String token = jwtUtil.generateToken(request.getUsername());
-            RedirectView redirectView = new RedirectView("/hello");
-            redirectView.addStaticAttribute("token", token);
-            response.setHeader("Authorization", "Bearer " + token);
-            if(auth.getAuthorities().stream().filter(a -> a.getAuthority().equalsIgnoreCase("ADMIN")).findFirst().isPresent())
-                return new RedirectView("/private/helloAdmin");
-            return new RedirectView("/private/hello");
+            RedirectView redirectView;
+            if(auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equalsIgnoreCase("ADMIN")))
+                redirectView = new RedirectView("/private/helloAdmin");
+            else
+                redirectView = new RedirectView("/private/hello");
+
+            Cookie jwtCookie = new Cookie("jwt", token);
+            jwtCookie.setHttpOnly(true);
+            jwtCookie.setSecure(false); // Únicamente se pondría a true si las peticiones fuesen HTTPS
+            jwtCookie.setPath("/");
+            jwtCookie.setMaxAge(24 * 60 * 60); // Validez de un día
+            response.addCookie(jwtCookie);
+            return redirectView;
         }
         return new RedirectView("/login");
     }
