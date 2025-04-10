@@ -1,5 +1,6 @@
 package es.neesis.security.auth;
 
+import es.neesis.security.service.AuthorizedIpsDetailsService;
 import es.neesis.security.service.UserDetailsServiceImpl;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -25,6 +26,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     @Autowired
     UserDetailsServiceImpl userDetailsServiceImpl;
 
+    @Autowired
+    AuthorizedIpsDetailsService authorizedIpsDetailsService;
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
@@ -39,11 +43,13 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
 
         String username = null;
+        String ip = null;
         if(token != null){
             username = jwtService.extractUsername(token);
+            ip = jwtService.extractClaim(token, claims -> claims.get("Ip", String.class));
         }
 
-        if(username != null && SecurityContextHolder.getContext().getAuthentication() == null){
+        if(username != null && authorizedIpsDetailsService.ipIsAuthorized(ip) && SecurityContextHolder.getContext().getAuthentication() == null){
             UserDetails userDetails = userDetailsServiceImpl.loadUserByUsername(username);
             if(jwtService.validateToken(token, userDetails)){
                 UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
