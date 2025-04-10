@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -42,8 +43,10 @@ public class JwtUtil {
         return extractExpiration(token).before(new Date());
     }
 
-    public String generateToken(String username){
-        Map<String, Object> claims = Map.of();
+    public String generateToken(String username, String ip, String localization){
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("Ip", ip);
+        claims.put("Localization", localization);
         return createToken(claims, username);
     }
 
