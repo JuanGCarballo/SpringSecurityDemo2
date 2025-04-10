@@ -44,6 +44,7 @@ public class LoginController {
             jwtCookie.setSecure(false); // Únicamente se pondría a true si las peticiones fuesen HTTPS
             jwtCookie.setPath("/");
             jwtCookie.setMaxAge(24 * 60 * 60); // Validez de un día
+            jwtCookie.setAttribute("Rol", auth.getAuthorities().stream().findFirst().get().getAuthority());
             response.addCookie(jwtCookie);
             return redirectView;
         }
