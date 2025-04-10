@@ -1,7 +1,9 @@
 package es.neesis.security.service;
 
+import es.neesis.security.entities.AuthorizedIpsEntity;
 import es.neesis.security.entities.UserEntity;
 import es.neesis.security.model.CustomUserDetails;
+import es.neesis.security.repository.AuthorizedIpsRepository;
 import es.neesis.security.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -23,4 +25,5 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         }
         return new CustomUserDetails(user);
     }
+
 }
