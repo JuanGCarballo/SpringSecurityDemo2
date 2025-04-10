@@ -25,7 +25,5 @@ public class UserEntity {
     private String password;
     @ManyToMany(fetch = FetchType.EAGER)
     private Set<UserRoleEntity> roles = new HashSet<>();
-    @ManyToMany(fetch = FetchType.EAGER)
-    private Set<AuthorizedIpsEntity> ips = new HashSet<>();
 
 }

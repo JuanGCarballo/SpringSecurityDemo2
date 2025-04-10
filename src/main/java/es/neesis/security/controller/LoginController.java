@@ -25,10 +25,14 @@ public class LoginController {
 
     @RequestMapping(value = "/login", method = RequestMethod.POST,
             consumes = "application/x-www-form-urlencoded")
-    public RedirectView login(HttpServletRequest request, HttpServletResponse response) {
-        Authentication auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
+    public RedirectView login(AuthRequestDTO userRequest, HttpServletRequest request, HttpServletResponse response) {
+        Authentication auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userRequest.getUsername(), userRequest.getPassword()));
         if(auth.isAuthenticated()){
-            String token = jwtUtil.generateToken("a","a","a"); //TODO
+            String ipAddress = request.getHeader("X-FORWARDED-FOR");
+            if (ipAddress == null) {
+                ipAddress = request.getRemoteAddr();
+            }
+            String token = jwtUtil.generateToken(userRequest.getUsername(),ipAddress,request.getLocale());
             RedirectView redirectView;
             if(auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equalsIgnoreCase("ADMIN")))
                 redirectView = new RedirectView("/private/helloAdmin");
